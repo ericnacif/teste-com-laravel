@@ -2,62 +2,65 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Tarefas</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen p-6">
-    <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl p-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">Gerenciador de Tarefas</h1>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-start p-6">
+
+    <div class="w-full max-w-4xl bg-white shadow-lg rounded-xl p-6 mt-6">
+        <h1 class="text-3xl font-bold text-center text-indigo-600 mb-4">Gerenciador de Tarefas</h1>
 
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+            <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
                 {{ session('success') }}
             </div>
         @endif
 
-        <form action="/tarefas" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            @csrf
-            <input type="text" name="titulo" placeholder="Título" required class="border p-2 rounded w-full">
-            <select name="prioridade" class="border p-2 rounded w-full">
-                <option value="">Prioridade</option>
-                <option value="baixa">Baixa</option>
-                <option value="media">Média</option>
-                <option value="alta">Alta</option>
-            </select>
-            <textarea name="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2"></textarea>
-            <input type="date" name="data_limite" class="border p-2 rounded">
-            <input type="file" name="anexo" class="border p-2 rounded">
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 col-span-1 md:col-span-2">Adicionar Tarefa</button>
-        </form>
-
-        <div class="mb-4">
-            <a href="/?filtro=todas" class="text-blue-600 mr-3">Todas</a>
-            <a href="/?filtro=pendentes" class="text-yellow-600 mr-3">Pendentes</a>
-            <a href="/?filtro=concluidas" class="text-green-600">Concluídas</a>
+        <!-- Filtros -->
+        <div class="flex flex-wrap gap-2 mb-4 justify-center">
+            <a href="/?filtro=todas" class="px-3 py-1 rounded-full {{ request('filtro') === 'todas' ? 'bg-indigo-600 text-white' : 'bg-gray-200' }}">Todas</a>
+            <a href="/?filtro=pendentes" class="px-3 py-1 rounded-full {{ request('filtro') === 'pendentes' ? 'bg-yellow-500 text-white' : 'bg-gray-200' }}">Pendentes</a>
+            <a href="/?filtro=concluidas" class="px-3 py-1 rounded-full {{ request('filtro') === 'concluidas' ? 'bg-green-600 text-white' : 'bg-gray-200' }}">Concluídas</a>
         </div>
 
+        <!-- Formulário -->
+        <form action="/tarefas" method="POST" class="space-y-4 mb-6">
+            @csrf
+            <input name="titulo" placeholder="Título da tarefa" class="w-full border p-2 rounded" required>
+            <textarea name="descricao" placeholder="Descrição" class="w-full border p-2 rounded"></textarea>
+            <div class="flex flex-col md:flex-row gap-3">
+                <select name="prioridade" class="w-full md:w-1/3 border p-2 rounded" required>
+                    <option value="baixa">Baixa</option>
+                    <option value="media">Média</option>
+                    <option value="alta">Alta</option>
+                </select>
+                <input type="date" name="prazo" class="w-full md:w-1/3 border p-2 rounded">
+                <button type="submit" class="w-full md:w-1/3 bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Adicionar</button>
+            </div>
+        </form>
+
+        <!-- Lista -->
         <ul class="space-y-3">
             @forelse($tarefas as $tarefa)
-                <li class="bg-gray-100 p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center">
-                    <div class="flex flex-col md:flex-row items-start md:items-center gap-3 w-full">
-                        <input type="checkbox" @if($tarefa->concluida) checked @endif onclick="location.href='/tarefas/{{$tarefa->id}}/toggle'" class="h-5 w-5 text-indigo-600">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold @if($tarefa->concluida) line-through text-gray-500 @endif">{{ $tarefa->titulo }}</h3>
-                            @if($tarefa->descricao)<p class="text-sm text-gray-600">{{ $tarefa->descricao }}</p>@endif
-                            @if($tarefa->prioridade)<p class="text-xs text-indigo-500">Prioridade: {{ ucfirst($tarefa->prioridade) }}</p>@endif
-                            @if($tarefa->data_limite)<p class="text-xs text-gray-500">Data limite: {{ \Carbon\Carbon::parse($tarefa->data_limite)->format('d/m/Y') }}</p>@endif
-                            @if($tarefa->anexo)
-                                <a href="{{ Storage::url($tarefa->anexo) }}" class="text-sm text-blue-500 underline" target="_blank">Ver anexo</a>
-                            @endif
+                <li class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                    <div class="flex flex-col md:flex-row md:items-center gap-2 w-full">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" onclick="location.href='/tarefas/{{$tarefa->id}}/toggle'" @if($tarefa->concluida) checked @endif>
+                            <span class="@if($tarefa->concluida) line-through text-gray-500 @endif font-medium">{{ $tarefa->titulo }}</span>
                         </div>
+                        <div class="text-sm text-gray-600">{{ $tarefa->descricao }}</div>
+                        <div class="text-sm font-semibold text-{{ $tarefa->prioridade === 'alta' ? 'red' : ($tarefa->prioridade === 'media' ? 'yellow' : 'green') }}-600 capitalize">
+                            Prioridade: {{ $tarefa->prioridade }}
+                        </div>
+                        @if($tarefa->prazo)
+                            <div class="text-sm text-blue-600">Prazo: {{ \Carbon\Carbon::parse($tarefa->prazo)->format('d/m/Y') }}</div>
+                        @endif
                     </div>
-                    <div class="flex gap-2 mt-3 md:mt-0">
-                        <a href="/tarefas/{{ $tarefa->id }}/editar" class="text-blue-600 hover:underline">Editar</a>
-                        <a href="/tarefas/{{ $tarefa->id }}/excluir" class="text-red-600 hover:underline" onclick="return confirm('Deseja excluir?')">Excluir</a>
-                    </div>
+                    <a href="/tarefas/{{ $tarefa->id }}/excluir" class="text-red-600 hover:text-red-800">Excluir</a>
                 </li>
             @empty
-                <li class="text-center text-gray-500">Nenhuma tarefa encontrada.</li>
+                <li class="text-gray-500 text-center">Nenhuma tarefa encontrada.</li>
             @endforelse
         </ul>
     </div>
