@@ -1,0 +1,106 @@
+:root {
+    --bg: #f9f9f9;
+    --text: #111;
+    --card: #ffffff;
+    --accent: #4f46e5;
+}
+
+[data-theme="dark"] {
+    --bg: #121212;
+    --text: #eee;
+    --card: #1e1e1e;
+    --accent: #6366f1;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 2rem;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+header h1 {
+    margin: 0;
+}
+
+form.formulario {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+form input, form textarea, form select, form button {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+form button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+form button:hover {
+    transform: scale(1.05);
+}
+
+.filtros a {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+ul.lista {
+    list-style: none;
+    padding: 0;
+}
+
+ul.lista li {
+    background: var(--card);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+ul.lista li:hover {
+    transform: scale(1.01);
+}
+
+ul.lista li.concluida {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+small {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+small.atrasada {
+    color: red;
+    font-weight: bold;
+}

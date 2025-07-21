@@ -1,23 +1,22 @@
+<?php
+
+<?php
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Tarefa;
 
-Route::get('/', function (Request $request) {
-    $filtro = $request->query('filtro', 'todas');
-    $tarefas = match ($filtro) {
-        'concluidas' => Tarefa::where('concluida', true)->get(),
-        'pendentes' => Tarefa::where('concluida', false)->get(),
-        default => Tarefa::all(),
-    };
-    return view('welcome', compact('tarefas', 'filtro'));
+Route::get('/', function () {
+    $tarefas = Tarefa::orderBy('created_at', 'desc')->get();
+    return view('tarefas', compact('tarefas'));
 });
 
 Route::post('/tarefas', function (Request $request) {
     $request->validate([
-        'titulo' => 'required|string|max:255',
-        'descricao' => 'nullable|string',
-        'prioridade' => 'required|in:baixa,media,alta',
-        'prazo' => 'nullable|date',
+        'titulo' => 'required|max:255',
+        'descricao' => 'nullable|max:1000',
+        'prioridade' => 'required',
+        'prazo' => 'required|date'
     ]);
 
     Tarefa::create([
@@ -25,20 +24,8 @@ Route::post('/tarefas', function (Request $request) {
         'descricao' => $request->descricao,
         'prioridade' => $request->prioridade,
         'prazo' => $request->prazo,
-        'concluida' => false,
+        'concluida' => false
     ]);
 
-    return redirect('/')->with('success', 'Tarefa adicionada!');
-});
-
-Route::get('/tarefas/{id}/toggle', function ($id) {
-    $tarefa = Tarefa::findOrFail($id);
-    $tarefa->concluida = !$tarefa->concluida;
-    $tarefa->save();
-    return redirect('/');
-});
-
-Route::get('/tarefas/{id}/excluir', function ($id) {
-    Tarefa::findOrFail($id)->delete();
-    return redirect('/')->with('success', 'Tarefa excluída!');
+    return response()->json(['success' => true]);
 });

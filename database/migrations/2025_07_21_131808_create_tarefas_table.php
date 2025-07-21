@@ -5,21 +5,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void
-    {
+    public function up(): void {
         Schema::create('tarefas', function (Blueprint $table) {
             $table->id();
             $table->string('titulo');
             $table->text('descricao')->nullable();
-            $table->enum('prioridade', ['baixa', 'media', 'alta'])->default('media');
+            $table->string('prioridade')->nullable();
             $table->date('prazo')->nullable();
             $table->boolean('concluida')->default(false);
             $table->timestamps();
         });
     }
 
-    public function down(): void
-    {
+    public function down(): void {
         Schema::dropIfExists('tarefas');
     }
 };
