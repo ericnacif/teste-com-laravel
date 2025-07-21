@@ -1,31 +1,20 @@
 <?php
 
-<?php
-
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Models\Tarefa;
 
 Route::get('/', function () {
-    $tarefas = Tarefa::orderBy('created_at', 'desc')->get();
-    return view('tarefas', compact('tarefas'));
+    return view('welcome');
 });
 
-Route::post('/tarefas', function (Request $request) {
-    $request->validate([
-        'titulo' => 'required|max:255',
-        'descricao' => 'nullable|max:1000',
-        'prioridade' => 'required',
-        'prazo' => 'required|date'
-    ]);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-    Tarefa::create([
-        'titulo' => $request->titulo,
-        'descricao' => $request->descricao,
-        'prioridade' => $request->prioridade,
-        'prazo' => $request->prazo,
-        'concluida' => false
-    ]);
-
-    return response()->json(['success' => true]);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';
